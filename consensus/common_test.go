@@ -640,6 +640,7 @@ func ensureLock(lockCh <-chan cmtpubsub.Message, height int64, round int32) {
 		"Timeout expired while waiting for LockValue event")
 }
 
+//nolint:unused // kept for potential future use
 func ensureRelock(relockCh <-chan cmtpubsub.Message, height int64, round int32) {
 	ensureNewEvent(relockCh, height, round, ensureTimeout,
 		"Timeout expired while waiting for RelockValue event")
