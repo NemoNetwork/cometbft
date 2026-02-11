@@ -171,7 +171,7 @@ func TestLegacySaveAndLoadFinalizeBlock(t *testing.T) {
 	require.Nil(t, legacyABCIResponses.EndBlock)
 	err = multiStore.SaveABCIResponses(height, &legacyABCIResponses)
 	require.NoError(t, err)
-	responseFinalizeBlock, err = multiStore.LoadFinalizeBlockResponse(height)
+	responseFinalizeBlock, err = multiStore.Store.LoadFinalizeBlockResponse(height)
 	require.NoError(t, err)
 
 	require.Equal(t, len(legacyABCIResponses.DeliverTxs), len(responseFinalizeBlock.TxResults))
