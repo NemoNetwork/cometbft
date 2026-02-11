@@ -1,51 +1,5 @@
 # CHANGELOG
 
-## UNRELEASED
-
-### DEPENDENCIES
-
-### BUG FIXES
-
-### IMPROVEMENTS
-
-### FEATURES
-
-### BUG-FIXES
-
-### STATE-BREAKING
-
-### API-BREAKING
-
-## v0.38.19
-
-*October 14, 2025*
-
-This release fixes two security issues, including ([ASA-2025-003](https://github.com/cometbft/cometbft/security/advisories/GHSA-hrhf-2vcr-ghch)).
-Users are encouraged to upgrade as soon as possible.
-
-Additionally included is a bug fix to properly prune extended commits (with
-vote extensions).
-
-### BUG-FIXES
-
-- `[consensus]` Reject oversized proposals
-  ([\#5324](https://github.com/cometbft/cometbft/pull/5324))
-- `[store]` Prune extended commits properly
-  ([5275](https://github.com/cometbft/cometbft/issues/5275))
-- `[bits]` Validate BitArray mismatched Bits and Elems length
-  ([ASA-2025-003](https://github.com/cometbft/cometbft/security/advisories/GHSA-hrhf-2vcr-ghch))
-
-## v0.38.18
-
-*July 3, 2025*
-
-Adds precommit metrics and reindex CLI command.
-
-### IMPROVEMENTS
-
-- Adds metrics that emit precommit data; precommit quorum delay from proposal, and precommit vote count and stake weight within timeout commit period.
-  ([\#5251](https://github.com/cometbft/cometbft/issues/5251))
-
 ## v0.38.17
 
 *February 3, 2025*
@@ -515,7 +469,7 @@ gossip.
   ([\#1584](https://github.com/cometbft/cometbft/pull/1584))
 - `[config]` Add mempool parameters `experimental_max_gossip_connections_to_persistent_peers` and
   `experimental_max_gossip_connections_to_non_persistent_peers` for limiting the number of peers to
-  which the node gossip transactions. 
+  which the node gossip transactions.
   ([\#1558](https://github.com/cometbft/cometbft/pull/1558))
   ([\#1584](https://github.com/cometbft/cometbft/pull/1584))
 
@@ -717,6 +671,11 @@ See below for more details.
   ([\#230](https://github.com/cometbft/cometbft/pull/230))
 - Bump minimum Go version to 1.20
   ([\#385](https://github.com/cometbft/cometbft/issues/385))
+- [config] The boolean key `fastsync` is deprecated and replaced by
+    `block_sync`. ([\#9259](https://github.com/tendermint/tendermint/pull/9259))
+    At the same time, `block_sync` is also deprecated. In the next release,
+    BlocSync will always be enabled and `block_sync` will be removed.
+    ([\#409](https://github.com/cometbft/cometbft/issues/409))
 - `[abci]` Make length delimiter encoding consistent
   (`uint64`) between ABCI and P2P wire-level protocols
   ([\#5783](https://github.com/tendermint/tendermint/pull/5783))

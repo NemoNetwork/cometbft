@@ -68,8 +68,8 @@ ifeq (linux/riscv64,$(findstring linux/riscv64,$(TARGETPLATFORM)))
 	GOARCH=riscv64
 endif
 
-#? all: Run target check, build, test and install
-all: check build test install
+#? all: Run target build, test and install
+all: build test install
 .PHONY: all
 
 include tests.mk
@@ -120,8 +120,8 @@ mockery:
 
 #? check-proto-deps: Check protobuf deps
 check-proto-deps:
-ifeq (,$(shell which protoc-gen-gocosmos))
-	@go install github.com/cosmos/gogoproto/protoc-gen-gocosmos@latest
+ifeq (,$(shell which protoc-gen-gogofaster))
+	@go install github.com/cosmos/gogoproto/protoc-gen-gogofaster@latest
 endif
 .PHONY: check-proto-deps
 
@@ -135,7 +135,7 @@ endif
 #? proto-gen: Generate protobuf files
 proto-gen: check-proto-deps
 	@echo "Generating Protobuf files"
-	@go run github.com/bufbuild/buf/cmd/buf@latest generate --path proto/tendermint
+	@go run github.com/bufbuild/buf/cmd/buf@latest generate
 	@mv ./proto/tendermint/abci/types.pb.go ./abci/types/
 	@cp ./proto/tendermint/rpc/grpc/types.pb.go ./rpc/grpc
 .PHONY: proto-gen
@@ -160,11 +160,11 @@ proto-check-breaking: check-proto-deps
 	@echo "Note: This is only useful if your changes have not yet been committed."
 	@echo "      Otherwise read up on buf's \"breaking\" command usage:"
 	@echo "      https://docs.buf.build/breaking/usage"
-	@go run github.com/bufbuild/buf/cmd/buf breaking --against ".git"
+	@go run github.com/bufbuild/buf/cmd/buf@latest breaking --against ".git"
 .PHONY: proto-check-breaking
 
 proto-check-breaking-ci:
-	@go run github.com/bufbuild/buf/cmd/buf breaking --against $(HTTPS_GIT)#branch=v0.34.x
+	@go run github.com/bufbuild/buf/cmd/buf@latest breaking --against $(HTTPS_GIT)#branch=v0.34.x
 .PHONY: proto-check-breaking-ci
 
 ###############################################################################
@@ -327,7 +327,7 @@ build_c-amazonlinux:
 #? localnet-start: Run a 4-node testnet locally
 localnet-start: localnet-stop build-docker-localnode
 	@if ! [ -f build/node0/config/genesis.json ]; then docker run --rm -v $(CURDIR)/build:/cometbft:Z cometbft/localnode testnet --config /etc/cometbft/config-template.toml --o . --starting-ip-address 192.167.10.2; fi
-	docker compose up
+	docker compose up -d
 .PHONY: localnet-start
 
 #? localnet-stop: Stop testnet

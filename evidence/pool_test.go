@@ -150,7 +150,7 @@ func TestReportConflictingVotes(t *testing.T) {
 	var height int64 = 10
 
 	pool, pv := defaultTestPool(t, height)
-	val := types.NewValidator(pv.PrivKey.PubKey(), 10, false)
+	val := types.NewValidator(pv.PrivKey.PubKey(), 10)
 	ev, err := types.NewMockDuplicateVoteEvidenceWithValidator(height+1, defaultEvidenceTime, pv, evidenceChainID)
 	require.NoError(t, err)
 
@@ -395,12 +395,7 @@ func initializeStateFromValidatorSet(valSet *types.ValidatorSet, height int64) s
 
 func initializeValidatorState(privVal types.PrivValidator, height int64) sm.Store {
 	pubKey, _ := privVal.GetPubKey()
-	validator := &types.Validator{
-		Address:         pubKey.Address(),
-		VotingPower:     10,
-		PubKey:          pubKey,
-		ProposeDisabled: false,
-	}
+	validator := &types.Validator{Address: pubKey.Address(), VotingPower: 10, PubKey: pubKey}
 
 	// create validator set and state
 	valSet := &types.ValidatorSet{
@@ -418,12 +413,9 @@ func initializeBlockStore(db dbm.DB, state sm.State, valAddr []byte) (*store.Blo
 
 	for i := int64(1); i <= state.LastBlockHeight; i++ {
 		lastCommit := makeExtCommit(i-1, valAddr)
-		block, err := state.MakeBlock(i, test.MakeNTxs(i, 1), lastCommit.ToCommit(), nil, state.Validators.Proposer.Address)
-		if err != nil {
-			return nil, err
-		}
-		block.Time = defaultEvidenceTime.Add(time.Duration(i) * time.Minute)
-		block.Version = cmtversion.Consensus{Block: version.BlockProtocol, App: 1}
+		block := state.MakeBlock(i, test.MakeNTxs(i, 1), lastCommit.ToCommit(), nil, state.Validators.Proposer.Address)
+		block.Header.Time = defaultEvidenceTime.Add(time.Duration(i) * time.Minute)
+		block.Header.Version = cmtversion.Consensus{Block: version.BlockProtocol, App: 1}
 		partSet, err := block.MakePartSet(types.BlockPartSizeBytes)
 		if err != nil {
 			return nil, err

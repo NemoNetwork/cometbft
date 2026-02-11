@@ -19,24 +19,17 @@ var (
 	full64bits  = full16bits + full16bits + full16bits + full16bits
 )
 
-func randBitArray(bits int) (*BitArray, []byte) {
+func randBitArray(bits int) *BitArray {
 	src := cmtrand.Bytes((bits + 7) / 8)
-	bA := NewBitArray(bits)
-	for i := 0; i < len(src); i++ {
-		for j := 0; j < 8; j++ {
-			if i*8+j >= bits {
-				return bA, src
-			}
-			setBit := src[i]&(1<<uint(j)) > 0
-			bA.SetIndex(i*8+j, setBit)
-		}
+	srcIndexToBit := func(i int) bool {
+		return src[i/8]&(1<<uint(i%8)) > 0
 	}
-	return bA, src
+	return NewBitArrayFromFn(bits, srcIndexToBit)
 }
 
 func TestAnd(t *testing.T) {
-	bA1, _ := randBitArray(51)
-	bA2, _ := randBitArray(31)
+	bA1 := randBitArray(51)
+	bA2 := randBitArray(31)
 	bA3 := bA1.And(bA2)
 
 	var bNil *BitArray
@@ -59,8 +52,8 @@ func TestAnd(t *testing.T) {
 }
 
 func TestOr(t *testing.T) {
-	bA1, _ := randBitArray(51)
-	bA2, _ := randBitArray(31)
+	bA1 := randBitArray(57)
+	bA2 := randBitArray(31)
 	bA3 := bA1.Or(bA2)
 
 	bNil := (*BitArray)(nil)
@@ -68,7 +61,7 @@ func TestOr(t *testing.T) {
 	require.Equal(t, bA1.Or(nil), bA1)
 	require.Equal(t, bNil.Or(nil), (*BitArray)(nil))
 
-	if bA3.Bits != 51 {
+	if bA3.Bits != 57 {
 		t.Error("Expected max bits")
 	}
 	if len(bA3.Elems) != len(bA1.Elems) {
@@ -79,6 +72,10 @@ func TestOr(t *testing.T) {
 		if bA3.GetIndex(i) != expected {
 			t.Error("Wrong bit from bA3", i, bA1.GetIndex(i), bA2.GetIndex(i), bA3.GetIndex(i))
 		}
+	}
+	if bA3.getNumTrueIndices() == 0 {
+		t.Error("Expected at least one true bit. " +
+			"This has a false positive rate that is less than 1 in 2^80 (cryptographically improbable).")
 	}
 }
 
@@ -122,8 +119,6 @@ func TestSub(t *testing.T) {
 }
 
 func TestPickRandom(t *testing.T) {
-	empty16Bits := "________________"
-	empty64Bits := empty16Bits + empty16Bits + empty16Bits + empty16Bits
 	testCases := []struct {
 		bA string
 		ok bool
@@ -138,6 +133,7 @@ func TestPickRandom(t *testing.T) {
 		{`"x` + empty64Bits + `"`, true},
 		{`"` + empty64Bits + `x"`, true},
 		{`"x` + empty64Bits + `x"`, true},
+		{`"` + empty64Bits + `___x"`, true},
 	}
 	for _, tc := range testCases {
 		var bitArr *BitArray
@@ -174,28 +170,6 @@ func TestGetNumTrueIndices(t *testing.T) {
 		require.Equal(t, tc.ExpectedResult, result, "for input %s, expected %d, got %d", tc.Input, tc.ExpectedResult, result)
 		result = bitArr.Not().getNumTrueIndices()
 		require.Equal(t, bitArr.Bits-result, bitArr.getNumTrueIndices())
-	}
-}
-
-func TestGetNumTrueIndicesInvalidStates(t *testing.T) {
-	testCases := []struct {
-		name string
-		bA1  *BitArray
-		exp  int
-	}{
-		{"empty", &BitArray{}, 0},
-		{"explicit 0 bits nil elements", &BitArray{Bits: 0, Elems: nil}, 0},
-		{"explicit 0 bits 0 len elements", &BitArray{Bits: 0, Elems: make([]uint64, 0)}, 0},
-		{"nil", nil, 0},
-		{"with elements", NewBitArray(10), 0},
-		{"more elements than bits specifies", &BitArray{Bits: 0, Elems: make([]uint64, 5)}, 0},
-		{"less elements than bits specifies", &BitArray{Bits: 200, Elems: make([]uint64, 1)}, 0},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			n := tc.bA1.getNumTrueIndices()
-			require.Equal(t, n, tc.exp)
-		})
 	}
 }
 
@@ -252,7 +226,7 @@ func TestGetNthTrueIndex(t *testing.T) {
 	}
 }
 
-func TestBytes(t *testing.T) {
+func TestBytes(_ *testing.T) {
 	bA := NewBitArray(4)
 	bA.SetIndex(0, true)
 	check := func(bA *BitArray, bz []byte) {
@@ -279,10 +253,6 @@ func TestBytes(t *testing.T) {
 	check(bA, []byte{0x80, 0x01})
 	bA.SetIndex(9, true)
 	check(bA, []byte{0x80, 0x03})
-
-	bA = NewBitArray(4)
-	bA.Elems = nil
-	require.False(t, bA.SetIndex(1, true))
 }
 
 func TestEmptyFull(t *testing.T) {
@@ -303,7 +273,7 @@ func TestEmptyFull(t *testing.T) {
 
 func TestUpdateNeverPanics(_ *testing.T) {
 	newRandBitArray := func(n int) *BitArray {
-		ba, _ := randBitArray(n)
+		ba := randBitArray(n)
 		return ba
 	}
 	pairs := []struct {
@@ -398,28 +368,6 @@ func TestBitArrayProtoBuf(t *testing.T) {
 		} else {
 			require.NotEqual(t, tc.bA1, ba, tc.msg)
 		}
-	}
-}
-
-func TestBitArrayValidateBasic(t *testing.T) {
-	testCases := []struct {
-		name    string
-		bA1     *BitArray
-		expPass bool
-	}{
-		{"valid empty", &BitArray{}, true},
-		{"valid explicit 0 bits nil elements", &BitArray{Bits: 0, Elems: nil}, true},
-		{"valid explicit 0 bits 0 len elements", &BitArray{Bits: 0, Elems: make([]uint64, 0)}, true},
-		{"valid nil", nil, true},
-		{"valid with elements", NewBitArray(10), true},
-		{"more elements than bits specifies", &BitArray{Bits: 0, Elems: make([]uint64, 5)}, false},
-		{"less elements than bits specifies", &BitArray{Bits: 200, Elems: make([]uint64, 1)}, false},
-	}
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			err := tc.bA1.ValidateBasic()
-			require.Equal(t, err == nil, tc.expPass)
-		})
 	}
 }
 
