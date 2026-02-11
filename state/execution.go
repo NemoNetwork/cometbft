@@ -428,7 +428,6 @@ func (blockExec *BlockExecutor) Commit(
 	// Update mempool.
 	err = blockExec.mempool.Update(
 		block.Height,
-		block.Time,
 		block.Txs,
 		abciResponse.TxResults,
 		TxPreCheck(state),
