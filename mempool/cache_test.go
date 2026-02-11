@@ -4,7 +4,6 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"testing"
-	"time"
 
 	"fmt"
 
