@@ -52,18 +52,6 @@ func PrometheusMetrics(namespace string, labelsAndValues ...string) *Metrics {
 			Name:      "evicted_txs",
 			Help:      "EvictedTxs defines the number of evicted transactions. These are valid transactions that passed CheckTx and make it into the mempool but later became invalid. metrics:Number of evicted transactions.",
 		}, labels).With(labelsAndValues...),
-		PurgedDurationTxs: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: MetricsSubsystem,
-			Name:      "purged_duration_txs",
-			Help:      "Number of purged transactions due to TTLDuration.",
-		}, labels).With(labelsAndValues...),
-		PurgedNumBlocksTxs: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
-			Namespace: namespace,
-			Subsystem: MetricsSubsystem,
-			Name:      "purged_num_blocks_txs",
-			Help:      "Number of purged transactions due to TTLNumBlocks.",
-		}, labels).With(labelsAndValues...),
 		RecheckTimes: prometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: namespace,
 			Subsystem: MetricsSubsystem,
@@ -87,8 +75,6 @@ func NopMetrics() *Metrics {
 		FailedTxs:                 discard.NewCounter(),
 		RejectedTxs:               discard.NewCounter(),
 		EvictedTxs:                discard.NewCounter(),
-		PurgedDurationTxs:         discard.NewCounter(),
-		PurgedNumBlocksTxs:        discard.NewCounter(),
 		RecheckTimes:              discard.NewCounter(),
 		ActiveOutboundConnections: discard.NewGauge(),
 	}

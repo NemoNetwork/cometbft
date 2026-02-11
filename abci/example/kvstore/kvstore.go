@@ -204,9 +204,8 @@ func (app *Application) FinalizeBlock(_ context.Context, req *types.RequestFinal
 			addr := string(ev.Validator.Address)
 			if pubKey, ok := app.valAddrToPubKeyMap[addr]; ok {
 				app.valUpdates = append(app.valUpdates, types.ValidatorUpdate{
-					PubKey:          pubKey,
-					Power:           ev.Validator.Power - 1,
-					ProposeDisabled: ev.Validator.ProposeDisabled,
+					PubKey: pubKey,
+					Power:  ev.Validator.Power - 1,
 				})
 				app.logger.Info("Decreased val power by 1 because of the equivocation",
 					"val", addr)
@@ -223,7 +222,7 @@ func (app *Application) FinalizeBlock(_ context.Context, req *types.RequestFinal
 			if err != nil {
 				panic(err)
 			}
-			app.valUpdates = append(app.valUpdates, types.UpdateValidator(pubKey, power, keyType, true))
+			app.valUpdates = append(app.valUpdates, types.UpdateValidator(pubKey, power, keyType, false))
 		} else {
 			app.stagedTxs = append(app.stagedTxs, tx)
 		}

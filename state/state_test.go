@@ -18,8 +18,10 @@ import (
 	cryptoenc "github.com/cometbft/cometbft/crypto/encoding"
 	"github.com/cometbft/cometbft/internal/test"
 	cmtrand "github.com/cometbft/cometbft/libs/rand"
+	cmtversion "github.com/cometbft/cometbft/proto/tendermint/version"
 	sm "github.com/cometbft/cometbft/state"
 	"github.com/cometbft/cometbft/types"
+	"github.com/cometbft/cometbft/version"
 )
 
 // setupTestCase does setup common to all test cases.
@@ -387,7 +389,7 @@ func TestProposerFrequency(t *testing.T) {
 			privVal := types.NewMockPV()
 			pubKey, err := privVal.GetPubKey()
 			require.NoError(t, err)
-			val := types.NewValidator(pubKey, votePower, false)
+			val := types.NewValidator(pubKey, votePower)
 			val.ProposerPriority = cmtrand.Int64()
 			vals[j] = val
 		}
@@ -404,7 +406,7 @@ func genValSetWithPowers(powers []int64) *types.ValidatorSet {
 	totalVotePower := int64(0)
 	for i := 0; i < size; i++ {
 		totalVotePower += powers[i]
-		val := types.NewValidator(ed25519.GenPrivKey().PubKey(), powers[i], false)
+		val := types.NewValidator(ed25519.GenPrivKey().PubKey(), powers[i])
 		val.ProposerPriority = cmtrand.Int64()
 		vals[i] = val
 	}
@@ -466,6 +468,7 @@ func TestProposerPriorityDoesNotGetResetToZero(t *testing.T) {
 
 	block, err := makeBlock(state, state.LastBlockHeight+1, new(types.Commit))
 	require.NoError(t, err)
+
 	bps, err := block.MakePartSet(testPartSize)
 	require.NoError(t, err)
 	blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: bps.Header()}
@@ -580,6 +583,7 @@ func TestProposerPriorityProposerAlternates(t *testing.T) {
 
 	block, err := makeBlock(state, state.LastBlockHeight+1, new(types.Commit))
 	require.NoError(t, err)
+	block.Header.Version = cmtversion.Consensus{Block: version.BlockProtocol, App: 1}
 	bps, err := block.MakePartSet(testPartSize)
 	require.NoError(t, err)
 	blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: bps.Header()}
@@ -758,6 +762,7 @@ func TestLargeGenesisValidator(t *testing.T) {
 
 		block, err := makeBlock(oldState, oldState.LastBlockHeight+1, new(types.Commit))
 		require.NoError(t, err)
+
 		bps, err := block.MakePartSet(testPartSize)
 		require.NoError(t, err)
 		blockID := types.BlockID{Hash: block.Hash(), PartSetHeader: bps.Header()}
@@ -843,6 +848,7 @@ func TestLargeGenesisValidator(t *testing.T) {
 		}
 		block, err := makeBlock(oldState, oldState.LastBlockHeight+1, new(types.Commit))
 		require.NoError(t, err)
+
 		bps, err := block.MakePartSet(testPartSize)
 		require.NoError(t, err)
 
@@ -883,7 +889,7 @@ func TestLargeGenesisValidator(t *testing.T) {
 		abciResponses := &abci.ResponseFinalizeBlock{}
 		validatorUpdates, err = types.PB2TM.ValidatorUpdates(abciResponses.ValidatorUpdates)
 		require.NoError(t, err)
-		block, err = makeBlock(curState, curState.LastBlockHeight+1, new(types.Commit))
+		block, err := makeBlock(curState, curState.LastBlockHeight+1, new(types.Commit))
 		require.NoError(t, err)
 
 		bps, err := block.MakePartSet(testPartSize)

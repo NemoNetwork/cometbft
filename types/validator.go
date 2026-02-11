@@ -25,16 +25,22 @@ type Validator struct {
 }
 
 // NewValidator returns a new validator with the given pubkey and voting power.
+// For backward compatibility with cosmos-sdk v0.50.11, proposeDisabled is optional
+// and defaults to false. To set proposeDisabled, pass it as the third argument.
 func NewValidator(
 	pubKey crypto.PubKey,
 	votingPower int64,
-	proposeDisabled bool,
+	proposeDisabled ...bool,
 ) *Validator {
+	proposeDisabledVal := false
+	if len(proposeDisabled) > 0 {
+		proposeDisabledVal = proposeDisabled[0]
+	}
 	return &Validator{
 		Address:          pubKey.Address(),
 		PubKey:           pubKey,
 		VotingPower:      votingPower,
-		ProposeDisabled:  proposeDisabled,
+		ProposeDisabled:  proposeDisabledVal,
 		ProposerPriority: 0,
 	}
 }

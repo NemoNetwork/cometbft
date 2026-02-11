@@ -580,27 +580,27 @@ func (mem *CListMempool) ReapMaxTxs(max int) types.Txs {
 
 // Lock() must be help by the caller during execution.
 func (mem *CListMempool) Update(
-	blockHeight int64,
-	blockTxs types.Txs,
-	deliverTxResponses []*abci.ExecTxResult,
-	newPreFn PreCheckFunc,
-	newPostFn PostCheckFunc,
+	height int64,
+	txs types.Txs,
+	txResults []*abci.ExecTxResult,
+	preCheck PreCheckFunc,
+	postCheck PostCheckFunc,
 ) error {
-	mem.logger.Debug("Update", "height", blockHeight, "len(txs)", len(blockTxs))
+	mem.logger.Debug("Update", "height", height, "len(txs)", len(txs))
 
 	// Set height
-	mem.height.Store(blockHeight)
+	mem.height.Store(height)
 	mem.notifiedTxsAvailable.Store(false)
 
-	if newPreFn != nil {
-		mem.preCheck = newPreFn
+	if preCheck != nil {
+		mem.preCheck = preCheck
 	}
-	if newPostFn != nil {
-		mem.postCheck = newPostFn
+	if postCheck != nil {
+		mem.postCheck = postCheck
 	}
 
-	for i, tx := range blockTxs {
-		if deliverTxResponses[i].Code == abci.CodeTypeOK {
+	for i, tx := range txs {
+		if txResults[i].Code == abci.CodeTypeOK {
 			// Add valid committed tx to the cache (if missing).
 			_ = mem.cache.Push(tx)
 		} else if !mem.config.KeepInvalidTxsInCache {

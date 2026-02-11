@@ -32,6 +32,7 @@ const (
 	EventNewRoundStep     = "NewRoundStep"
 	EventPolka            = "Polka"
 	EventRelock           = "Relock"
+	EventUnlock           = "Unlock"
 	EventTimeoutPropose   = "TimeoutPropose"
 	EventTimeoutWait      = "TimeoutWait"
 	EventValidBlock       = "ValidBlock"
@@ -158,6 +159,7 @@ var (
 	EventQueryTimeoutPropose      = QueryForEvent(EventTimeoutPropose)
 	EventQueryTimeoutWait         = QueryForEvent(EventTimeoutWait)
 	EventQueryTx                  = QueryForEvent(EventTx)
+	EventQueryUnlock              = QueryForEvent(EventUnlock)
 	EventQueryValidatorSetUpdates = QueryForEvent(EventValidatorSetUpdates)
 	EventQueryValidBlock          = QueryForEvent(EventValidBlock)
 	EventQueryVote                = QueryForEvent(EventVote)

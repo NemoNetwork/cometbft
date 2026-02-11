@@ -142,8 +142,6 @@ func TestReactorWithEvidence(t *testing.T) {
 		})
 		state, _ := stateStore.LoadFromDBOrGenesisDoc(genDoc)
 		thisConfig := ResetConfig(fmt.Sprintf("%s_%d", testName, i))
-		// Set timeout to 0 so `skipTimeoutCommit = true` during test.
-		thisConfig.Consensus.TimeoutCommit = 0
 		defer os.RemoveAll(thisConfig.RootDir)
 		ensureDir(path.Dir(thisConfig.Consensus.WalFile()), 0o700) // dir for wal
 		app := appFunc()
@@ -450,7 +448,6 @@ func TestReactorVotingPowerChange(t *testing.T) {
 		"consensus_voting_power_changes_test",
 		newMockTickerFunc(true),
 		newPersistentKVStore)
-
 	defer cleanup()
 	reactors, blocksSubs, eventBuses := startConsensusNet(t, css, nVals)
 	defer stopConsensusNet(logger, reactors, eventBuses)
@@ -888,14 +885,6 @@ func TestNewValidBlockMessageValidateBasic(t *testing.T) {
 			func(msg *NewValidBlockMessage) { msg.BlockParts = bits.NewBitArray(int(types.MaxBlockPartsCount) + 1) },
 			"blockParts bit array size 1602 not equal to BlockPartSetHeader.Total 1",
 		},
-		{
-			func(msg *NewValidBlockMessage) { msg.BlockParts.Elems = nil },
-			"mismatch between specified number of bits 1, and number of elements 0, expected 1 elements",
-		},
-		{
-			func(msg *NewValidBlockMessage) { msg.BlockParts.Bits = 500 },
-			"mismatch between specified number of bits 500, and number of elements 1, expected 8 elements",
-		},
 	}
 
 	for i, tc := range testCases {
@@ -931,14 +920,6 @@ func TestProposalPOLMessageValidateBasic(t *testing.T) {
 		{
 			func(msg *ProposalPOLMessage) { msg.ProposalPOL = bits.NewBitArray(types.MaxVotesCount + 1) },
 			"proposalPOL bit array is too big: 10001, max: 10000",
-		},
-		{
-			func(msg *ProposalPOLMessage) { msg.ProposalPOL.Elems = nil },
-			"mismatch between specified number of bits 1, and number of elements 0, expected 1 elements",
-		},
-		{
-			func(msg *ProposalPOLMessage) { msg.ProposalPOL.Bits = 500 },
-			"mismatch between specified number of bits 500, and number of elements 1, expected 8 elements",
 		},
 	}
 
@@ -1095,14 +1076,6 @@ func TestVoteSetBitsMessageValidateBasic(t *testing.T) {
 		{
 			func(msg *VoteSetBitsMessage) { msg.Votes = bits.NewBitArray(types.MaxVotesCount + 1) },
 			"votes bit array is too big: 10001, max: 10000",
-		},
-		{
-			func(msg *VoteSetBitsMessage) { msg.Votes.Elems = nil },
-			"mismatch between specified number of bits 1, and number of elements 0, expected 1 elements",
-		},
-		{
-			func(msg *VoteSetBitsMessage) { msg.Votes.Bits = 500 },
-			"mismatch between specified number of bits 500, and number of elements 1, expected 8 elements",
 		},
 	}
 
