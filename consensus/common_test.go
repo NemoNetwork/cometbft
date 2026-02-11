@@ -635,6 +635,7 @@ func ensureNewBlockHeader(blockCh <-chan cmtpubsub.Message, height int64, blockH
 	}
 }
 
+//nolint:unused // kept for potential future use
 func ensureLock(lockCh <-chan cmtpubsub.Message, height int64, round int32) {
 	ensureNewEvent(lockCh, height, round, ensureTimeout,
 		"Timeout expired while waiting for LockValue event")
