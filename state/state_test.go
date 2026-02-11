@@ -131,7 +131,7 @@ func TestFinalizeBlockResponsesSaveLoad1(t *testing.T) {
 
 	abciResponses.AppHash = make([]byte, 1)
 
-	err := stateStore.SaveFinalizeBlockResponse(block.Height, abciResponses)
+	err = stateStore.SaveFinalizeBlockResponse(block.Height, abciResponses)
 	require.NoError(t, err)
 	loadedABCIResponses, err := stateStore.LoadFinalizeBlockResponse(block.Height)
 	assert.NoError(err)
@@ -387,7 +387,7 @@ func TestProposerFrequency(t *testing.T) {
 			privVal := types.NewMockPV()
 			pubKey, err := privVal.GetPubKey()
 			require.NoError(t, err)
-			val := types.NewValidator(pubKey, votePower)
+			val := types.NewValidator(pubKey, votePower, false)
 			val.ProposerPriority = cmtrand.Int64()
 			vals[j] = val
 		}
@@ -404,7 +404,7 @@ func genValSetWithPowers(powers []int64) *types.ValidatorSet {
 	totalVotePower := int64(0)
 	for i := 0; i < size; i++ {
 		totalVotePower += powers[i]
-		val := types.NewValidator(ed25519.GenPrivKey().PubKey(), powers[i])
+		val := types.NewValidator(ed25519.GenPrivKey().PubKey(), powers[i], false)
 		val.ProposerPriority = cmtrand.Int64()
 		vals[i] = val
 	}

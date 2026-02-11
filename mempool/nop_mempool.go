@@ -2,7 +2,6 @@ package mempool
 
 import (
 	"errors"
-	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/libs/service"

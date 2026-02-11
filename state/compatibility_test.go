@@ -113,7 +113,7 @@ func TestLegacySaveAndLoadFinalizeBlock(t *testing.T) {
 	require.Equal(t, 1, len(legacyABCIResponses.BeginBlock.Events))
 	require.Equal(t, 1, len(legacyABCIResponses.EndBlock.Events))
 
-	responseFinalizeBlock, err := multiStore.LoadFinalizeBlockResponse(height)
+	responseFinalizeBlock, err := multiStore.Store.LoadFinalizeBlockResponse(height)
 	require.NoError(t, err)
 
 	// Test for not nil
