@@ -674,7 +674,7 @@ func (app *Application) verifyAndSum(
 		}
 		if len(vote.VoteExtension) == 0 {
 			return 0, fmt.Errorf("received empty vote extension from %X at height %d (extensions enabled); "+
-				"e2e app's logic does not allow it", vote.Validator, currentHeight)
+				"e2e app's logic does not allow it", vote.Validator.Address, currentHeight)
 		}
 		// Vote extension signatures are always provided. Apps can use them to verify the integrity of extensions
 		if len(vote.ExtensionSignature) == 0 {
