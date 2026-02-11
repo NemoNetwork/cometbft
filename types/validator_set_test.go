@@ -1663,7 +1663,7 @@ func TestValidatorSet_AllKeysHaveSameType(t *testing.T) {
 			sameType: true,
 		},
 		{
-			vals:     NewValidatorSet([]*Validator{randValidator(100), NewValidator(sr25519.GenPrivKey().PubKey(), 200)}),
+			vals:     NewValidatorSet([]*Validator{randValidator(100), NewValidator(sr25519.GenPrivKey().PubKey(), 200, false)}),
 			sameType: false,
 		},
 	}

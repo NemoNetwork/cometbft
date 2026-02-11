@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"math"
-	"time"
 
 	abci "github.com/cometbft/cometbft/abci/types"
 	"github.com/cometbft/cometbft/types"
