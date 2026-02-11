@@ -772,7 +772,7 @@ func TestStateLockPOLUnlock(t *testing.T) {
 	proposalCh := subscribe(cs1.eventBus, types.EventQueryCompleteProposal)
 	timeoutWaitCh := subscribe(cs1.eventBus, types.EventQueryTimeoutWait)
 	newRoundCh := subscribe(cs1.eventBus, types.EventQueryNewRound)
-	unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock)
+	// unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock) // EventQueryUnlock removed in upstream
 	pv1, err := cs1.privValidator.GetPubKey()
 	require.NoError(t, err)
 	addr := pv1.Address()
@@ -840,7 +840,7 @@ func TestStateLockPOLUnlock(t *testing.T) {
 	signAddVotes(cs1, cmtproto.PrevoteType, nil, types.PartSetHeader{}, false, vs2, vs3, vs4)
 
 	// the polka makes us unlock and precommit nil
-	ensureNewUnlock(unlockCh, height, round)
+	// ensureNewUnlock(unlockCh, height, round) // ensureNewUnlock removed in upstream
 	ensurePrecommit(voteCh, height, round)
 
 	// we should have unlocked and committed nil
@@ -1126,7 +1126,7 @@ func TestStateLockPOLSafety2(t *testing.T) {
 	proposalCh := subscribe(cs1.eventBus, types.EventQueryCompleteProposal)
 	timeoutWaitCh := subscribe(cs1.eventBus, types.EventQueryTimeoutWait)
 	newRoundCh := subscribe(cs1.eventBus, types.EventQueryNewRound)
-	unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock)
+	// unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock) // EventQueryUnlock removed in upstream
 	pv1, err := cs1.privValidator.GetPubKey()
 	require.NoError(t, err)
 	addr := pv1.Address()
@@ -1204,7 +1204,7 @@ func TestStateLockPOLSafety2(t *testing.T) {
 	*/
 	ensureNewProposal(proposalCh, height, round)
 
-	ensureNoNewUnlock(unlockCh)
+	// ensureNoNewUnlock(unlockCh) // ensureNoNewUnlock removed in upstream
 	ensurePrevote(voteCh, height, round)
 	validatePrevote(t, cs1, round, vss[0], propBlockHash1)
 }
@@ -1225,7 +1225,7 @@ func TestProposeValidBlock(t *testing.T) {
 	timeoutWaitCh := subscribe(cs1.eventBus, types.EventQueryTimeoutWait)
 	timeoutProposeCh := subscribe(cs1.eventBus, types.EventQueryTimeoutPropose)
 	newRoundCh := subscribe(cs1.eventBus, types.EventQueryNewRound)
-	unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock)
+	// unlockCh := subscribe(cs1.eventBus, types.EventQueryUnlock) // EventQueryUnlock removed in upstream
 	pv1, err := cs1.privValidator.GetPubKey()
 	require.NoError(t, err)
 	addr := pv1.Address()
@@ -1271,7 +1271,7 @@ func TestProposeValidBlock(t *testing.T) {
 
 	signAddVotes(cs1, cmtproto.PrevoteType, nil, types.PartSetHeader{}, false, vs2, vs3, vs4)
 
-	ensureNewUnlock(unlockCh, height, round)
+	// ensureNewUnlock(unlockCh, height, round) // ensureNewUnlock removed in upstream
 
 	ensurePrecommit(voteCh, height, round)
 	// we should have precommitted
